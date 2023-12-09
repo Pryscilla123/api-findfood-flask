@@ -1,8 +1,10 @@
 from decouple import config
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy import create_engine, inspect
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def configure_database(app):
@@ -13,7 +15,7 @@ def configure_database(app):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
-
+    migrate.init_app(app, db)
     # engine inspector
 
     with app.app_context():
