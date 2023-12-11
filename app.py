@@ -9,7 +9,7 @@ api = Api(app)
 
 configure_database(app)
 
-api.add_resource(RestaurantViewSets, '/restaurant/')
+api.add_resource(RestaurantViewSets, '/restaurant/', '/restaurant/<string:id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
