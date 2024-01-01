@@ -1,26 +1,41 @@
-import werkzeug
+import cloudinary
+from cloudinary.uploader import upload
+from decouple import config
+from werkzeug import datastructures
 from findfood.restaurant.serializers import RestaurantSerializer
 from findfood.restaurant.models import Restaurant
 from findfood.config.database import db
 from flask_restful import Resource, reqparse
+from flask import request
+
+cloudinary.config(cloud_name=config('CLOUD_NAME'), api_key=config('API_KEY'),
+                  api_secret=config('API_SECRET'))
 
 
 class RestaurantViewSets(Resource):
 
-    def __init__(self):
-        self.parser = RestaurantSerializer(reqparse.RequestParser()).parser
-        super(RestaurantViewSets, self).__init__()
-
     def post(self):
-        args = self.parser.parse_args()
 
-        new_restaurant = Restaurant(name=args['name'], type=args['type'])
+        name = request.form.get("name")
+        type = request.form.get("type")
+        img = request.files.get("img")
 
-        db.session.add(new_restaurant)
-        db.session.commit()
+        try:
 
-        return {'message': 'Restaurant added successfully',
-                'data': {'name': new_restaurant.name, 'type': new_restaurant.type}}, 201
+            uploaded_img = upload(img)
+
+            validated_data = RestaurantSerializer(name=name, type=type, img=uploaded_img.get('secure_url'))
+
+            new_restaurant = Restaurant(**dict(validated_data))
+
+            db.session.add(new_restaurant)
+            db.session.commit()
+
+            return {'message': 'Restaurant added successfully',
+                    'data': {'name': new_restaurant.name, 'type': new_restaurant.type, 'img': new_restaurant.img}}, 201
+
+        except Exception as e:
+            return {'message': e}, 400
 
     def put(self, id):
         args = self.parser.parse_args()

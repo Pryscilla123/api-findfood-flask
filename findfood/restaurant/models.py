@@ -8,6 +8,7 @@ class Restaurant(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     type = db.Column(db.String(100), nullable=False)
+    img = db.Column(db.String(100), nullable=False)
     restaurant_address = db.relationship('Address', backref='restaurant', lazy=True)
 
 
